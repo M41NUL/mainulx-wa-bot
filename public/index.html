@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAINUL-X · WA Bot Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  /* ── MAINUL-X WhatsApp Bot Dashboard ──────────────────────────────
+     AUTHOR  : Md. Mainul Islam
+     OWNER   : MAINUL-X
+     GITHUB  : M41NUL  →  https://github.com/M41NUL
+     WHATSAPP: +8801308850528
+     TELEGRAM: t.me/mdmainulislaminfo
+     © MAINUL-X  All Rights Reserved
+  ─────────────────────────────────────────────────────────────────── */
+
+  :root {
+    --bg:        #0a0a0a;
+    --surface:   #111111;
+    --card:      #161616;
+    --border:    rgba(255,255,255,0.07);
+    --accent:    #4ade80;
+    --accent-dim:#166534;
+    --muted:     #888;
+    --text:      #e8e8e8;
+    --text-sub:  #666;
+    --danger:    #ef4444;
+    --warn:      #f59e0b;
+    --radius:    14px;
+    --sidebar-w: 240px;
+    --transition:0.22s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 15px; }
+
+  body {
+    font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+
+  /* ── Login Screen ── */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-box {
+    width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 40px 36px;
+    backdrop-filter: blur(20px);
+    animation: fadeUp .5s ease;
+  }
+  .login-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 32px;
+  }
+  .login-logo .dot {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    color: #000; font-size: 16px;
+  }
+  .login-logo span {
+    font-size: 17px; font-weight: 700; letter-spacing: .4px;
+  }
+  .login-logo small {
+    display: block; font-size: 11px; color: var(--muted); font-weight: 400;
+  }
+  .login-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .login-sub   { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 7px; letter-spacing: .3px; text-transform: uppercase; }
+  .field input {
+    width: 100%; padding: 12px 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-size: 14px;
+    outline: none; transition: border-color var(--transition);
+  }
+  .field input:focus { border-color: var(--accent); }
+  .btn-primary {
+    width: 100%; padding: 13px;
+    background: var(--accent); color: #000;
+    border: none; border-radius: 11px;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: opacity var(--transition);
+    margin-top: 6px;
+  }
+  .btn-primary:hover { opacity: .85; }
+  .login-err {
+    display: none; text-align: center;
+    color: var(--danger); font-size: 13px; margin-top: 12px;
+  }
+
+  /* ── App Shell ── */
+  #app { display: none; }
+  #app.visible { display: flex; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    height: 100vh; position: fixed; left: 0; top: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    transition: transform var(--transition);
+  }
+  .sidebar-head {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 11px;
+  }
+  .brand-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    color: #000; font-size: 14px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .brand-text { font-size: 15px; font-weight: 700; }
+  .brand-text small { display: block; font-size: 10.5px; color: var(--muted); font-weight: 400; }
+
+  .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  .nav-section { font-size: 10px; color: var(--text-sub); letter-spacing: 1px; text-transform: uppercase; padding: 14px 10px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 10px;
+    cursor: pointer; font-size: 13.5px; color: var(--muted);
+    transition: all var(--transition); margin-bottom: 2px;
+    user-select: none;
+  }
+  .nav-item i { width: 16px; text-align: center; font-size: 13px; }
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: rgba(74,222,128,.1); color: var(--accent); }
+  .nav-item .badge {
+    margin-left: auto; background: var(--accent);
+    color: #000; font-size: 10px; font-weight: 700;
+    padding: 1px 7px; border-radius: 20px;
+  }
+
+  .sidebar-foot {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .user-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border-radius: 11px;
+    padding: 9px 12px; cursor: pointer;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-info span { display: block; font-size: 13px; font-weight: 600; }
+  .user-info small { font-size: 11px; color: var(--muted); }
+  .user-pill i { color: var(--muted); font-size: 12px; }
+
+  /* ── Main Content ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1; min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    height: 58px; padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,.85);
+    backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-left h1 { font-size: 16px; font-weight: 700; }
+  .topbar-left span { font-size: 13px; color: var(--muted); }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 20px; font-size: 12px;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  .status-dot.offline { background: var(--danger); animation: none; }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: .4; }
+  }
+  .icon-btn {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 13px;
+    transition: all var(--transition);
+  }
+  .icon-btn:hover { color: var(--text); border-color: rgba(255,255,255,.15); }
+
+  /* ── Page Content ── */
+  .content { padding: 24px; flex: 1; }
+  .page { display: none; animation: fadeUp .28s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Stats Grid ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+    transition: border-color var(--transition);
+  }
+  .stat-card:hover { border-color: rgba(74,222,128,.2); }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: .3px; text-transform: uppercase; margin-bottom: 10px; }
+  .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.warn   { color: var(--warn); }
+  .stat-value.danger { color: var(--danger); }
+  .stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Section Heading ── */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-head h2 { font-size: 14px; font-weight: 700; }
+  .section-head span { font-size: 12px; color: var(--muted); cursor: pointer; }
+  .section-head span:hover { color: var(--accent); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title i { color: var(--accent); font-size: 13px; }
+
+  /* ── Grid Layout ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ── Toggle Switches ── */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .toggle-label { font-size: 13.5px; }
+  .toggle-desc  { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    width: 44px; height: 26px; border-radius: 13px;
+    background: #2a2a2a; position: relative; cursor: pointer;
+    flex-shrink: 0; transition: background var(--transition);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; top: 2px; left: 2px;
+    transition: transform var(--transition);
+    box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* ── Input Fields ── */
+  .form-field { margin-bottom: 14px; }
+  .form-field label { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: .3px; }
+  .form-field input, .form-field textarea, .form-field select {
+    width: 100%; padding: 10px 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-size: 13.5px;
+    outline: none; transition: border-color var(--transition);
+    font-family: inherit;
+  }
+  .form-field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: var(--accent); }
+  .form-field select { cursor: pointer; appearance: none; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 9px 18px; border-radius: 9px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; transition: all var(--transition); display: inline-flex;
+    align-items: center; gap: 7px;
+  }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-accent:hover { opacity: .85; }
+  .btn-ghost  { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover  { border-color: rgba(255,255,255,.2); }
+  .btn-danger { background: rgba(239,68,68,.1); color: var(--danger); border: 1px solid rgba(239,68,68,.2); }
+  .btn-danger:hover { background: rgba(239,68,68,.2); }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .4px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background var(--transition); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.02); }
+  tbody td { padding: 11px 14px; }
+  .tag {
+    display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .tag-green { background: rgba(74,222,128,.12); color: var(--accent); }
+  .tag-red   { background: rgba(239,68,68,.12);  color: var(--danger); }
+  .tag-gray  { background: rgba(255,255,255,.06); color: var(--muted); }
+
+  /* ── Pairing Box ── */
+  .pair-box {
+    background: rgba(74,222,128,.04);
+    border: 1px solid rgba(74,222,128,.15);
+    border-radius: var(--radius); padding: 22px;
+    text-align: center;
+  }
+  .pair-code {
+    font-size: 36px; font-weight: 800; letter-spacing: 8px;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+    margin: 14px 0; font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .pair-hint { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+  /* ── Timing Picker ── */
+  .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── QR / Status Visual ── */
+  .bot-status-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .status-icon-wrap {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: rgba(74,222,128,.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--accent); flex-shrink: 0;
+  }
+  .status-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .status-info p  { font-size: 13px; color: var(--muted); }
+  .status-info .meta { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
+
+  /* ── Log viewer ── */
+  .log-box {
+    background: #0d0d0d; border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.7; color: #aaa;
+    max-height: 220px; overflow-y: auto;
+  }
+  .log-box .log-info  { color: var(--accent); }
+  .log-box .log-warn  { color: var(--warn); }
+  .log-box .log-err   { color: var(--danger); }
+  .log-box .log-muted { color: #555; }
+
+  /* ── Keyword rows ── */
+  .kw-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .kw-row:last-child { border-bottom: none; }
+  .kw-chip {
+    background: rgba(74,222,128,.1); color: var(--accent);
+    padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    min-width: 100px;
+  }
+  .kw-reply { flex: 1; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kw-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* ── Payment badge ── */
+  .pay-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+  .pay-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 11px; padding: 16px;
+  }
+  .pay-card .pay-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; margin-bottom: 8px; }
+  .pay-card .pay-num   { font-size: 15px; font-weight: 700; }
+
+  /* ── Modal ── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.75);
+    z-index: 500; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    width: 440px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 28px; animation: fadeUp .25s ease;
+  }
+  .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px; z-index: 999;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 11px; padding: 12px 18px;
+    font-size: 13px; display: flex; align-items: center; gap: 9px;
+    opacity: 0; transform: translateY(8px);
+    transition: all .28s ease; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast i { color: var(--accent); }
+
+  /* ── Uptime ring ── */
+  .uptime-ring {
+    width: 80px; height: 80px; position: relative; flex-shrink: 0;
+  }
+  .uptime-ring svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--border); stroke-width: 5; }
+  .ring-fill  { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round;
+    stroke-dasharray: 220; stroke-dashoffset: 55; transition: stroke-dashoffset 1s ease; }
+  .ring-val {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--accent);
+  }
+
+  /* ── Mobile sidebar overlay ── */
+  .mob-overlay { display: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { transform: translateX(-240px); }
+    .sidebar.open { transform: translateX(0); width: 240px; }
+    .mob-overlay { display: block; position: fixed; inset: 0; z-index: 99; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .pay-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 500px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 0 14px; }
+    .content { padding: 14px; }
+  }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* ── Runtime badge ── */
+  #runtime-badge {
+    font-family: 'SF Mono', monospace; font-size: 12.5px;
+    color: var(--accent); background: rgba(74,222,128,.08);
+    padding: 4px 10px; border-radius: 7px;
+    border: 1px solid rgba(74,222,128,.15);
+  }
+
+  /* ── Notification dot ── */
+  .notif-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); margin-left: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────── LOGIN ─────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="logo.png" alt="MAINUL-X" style="width:42px;height:42px;border-radius:10px;object-fit:cover;flex-shrink:0;" />
+      <div>
+        <span>MAINUL-X</span>
+        <small>WA Bot Dashboard</small>
+      </div>
+    </div>
+    <div class="login-title">Sign in</div>
+    <div class="login-sub">Admin access only</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="l-user" placeholder="admin" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="l-pass" placeholder="••••••••" />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Continue</button>
+    <div class="login-err" id="l-err">Invalid credentials</div>
+  </div>
+</div>
+
+<!-- ─────────── APP ─────────── -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <img src="logo.png" alt="MAINUL-X" style="width:34px;height:34px;border-radius:9px;object-fit:cover;flex-shrink:0;" />
+      <div class="brand-text">
+        MAINUL-X
+        <small>WA Bot Panel</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" data-page="overview" onclick="nav(this)">
+        <i class="fa-solid fa-chart-pie"></i> Overview
+      </div>
+      <div class="nav-item" data-page="pairing" onclick="nav(this)">
+        <i class="fa-solid fa-qrcode"></i> Pairing
+      </div>
+      <div class="nav-item" data-page="system" onclick="nav(this)">
+        <i class="fa-solid fa-microchip"></i> System
+        <span class="notif-dot"></span>
+      </div>
+
+      <div class="nav-section">Bot Config</div>
+      <div class="nav-item" data-page="messages" onclick="nav(this)">
+        <i class="fa-solid fa-comment-dots"></i> Messages
+      </div>
+      <div class="nav-item" data-page="keywords" onclick="nav(this)">
+        <i class="fa-solid fa-hashtag"></i> Keywords
+        <span class="badge">12</span>
+      </div>
+      <div class="nav-item" data-page="timing" onclick="nav(this)">
+        <i class="fa-solid fa-clock"></i> Timing
+      </div>
+      <div class="nav-item" data-page="controls" onclick="nav(this)">
+        <i class="fa-solid fa-sliders"></i> Controls
+      </div>
+
+      <div class="nav-section">Management</div>
+      <div class="nav-item" data-page="personal" onclick="nav(this)">
+        <i class="fa-solid fa-user"></i> Personal
+      </div>
+      <div class="nav-item" data-page="groups" onclick="nav(this)">
+        <i class="fa-solid fa-users"></i> Groups
+      </div>
+      <div class="nav-item" data-page="payments" onclick="nav(this)">
+        <i class="fa-solid fa-bangladeshi-taka-sign"></i> Payments
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="user-pill">
+        <img src="logo.png" alt="M" style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+        <div class="user-info">
+          <span>Mainul Islam</span>
+          <small>Owner</small>
+        </div>
+        <i class="fa-solid fa-ellipsis"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="icon-btn" onclick="toggleSidebar()" id="mob-menu">
+          <i class="fa-solid fa-bars"></i>
+        </div>
+        <h1 id="page-title">Overview</h1>
+      </div>
+      <div class="topbar-right">
+        <span id="runtime-badge">00:00:00</span>
+        <div class="status-pill">
+          <div class="status-dot" id="bot-dot"></div>
+          <span id="bot-status-text">Connected</span>
+        </div>
+        <div class="icon-btn" onclick="showToast('Settings saved')"><i class="fa-solid fa-floppy-disk"></i></div>
+        <div class="icon-btn" onclick="doLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="page active" id="page-overview">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Messages Replied</div>
+            <div class="stat-value accent" id="s-replied">2,847</div>
+            <div class="stat-sub">Today: 143</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" id="s-users">381</div>
+            <div class="stat-sub">+12 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Groups</div>
+            <div class="stat-value warn" id="s-groups">24</div>
+            <div class="stat-sub">3 active now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Auto Reply Rate</div>
+            <div class="stat-value" id="s-rate">98.4%</div>
+            <div class="stat-sub">Uptime: 99.9%</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Bot Status -->
+          <div class="card">
+            <div class="card-title"><i class="fa-brands fa-whatsapp"></i> Bot Status</div>
+            <div class="bot-status-card" style="background:transparent;border:none;padding:0;">
+              <div class="status-icon-wrap"><i class="fa-brands fa-whatsapp"></i></div>
+              <div class="status-info">
+                <h3>WA-AutoReply Bot</h3>
+                <p>+8801308850528 · MAINUL-X</p>
+                <div class="meta">Session: active · Last ping: just now</div>
+              </div>
+              <div style="margin-left:auto">
+                <div class="uptime-ring">
+                  <svg viewBox="0 0 80 80" width="80" height="80">
+                    <circle class="ring-track" cx="40" cy="40" r="35"/>
+                    <circle class="ring-fill" cx="40" cy="40" r="35" id="uptime-arc"/>
+                  </svg>
+                  <div class="ring-val">75%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Toggles -->
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-bolt"></i> Quick Controls</div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Auto Reply</div>
+                <div class="toggle-desc">Bot replies when owner offline</div>
+              </div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Auto Read</div>
+                <div class="toggle-desc">Mark messages as read</div>
+              </div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Keyword System</div>
+                <div class="toggle-desc">Trigger keyword replies</div>
+              </div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-terminal"></i> Live Log</div>
+          <div class="log-box" id="log-box">
+            <div class="log-muted">[2024-01-15 14:22:01]  System boot</div>
+            <div class="log-info">[14:22:03]  Connected to WhatsApp ✓</div>
+            <div class="log-info">[14:22:05]  Firebase initialized ✓</div>
+            <div class="log-info">[14:22:06]  Keywords loaded: 12</div>
+            <div class="log-warn">[14:23:11]  Owner went offline → auto-reply ON</div>
+            <div class="log-info">[14:23:18]  Auto-replied to +8801XXXXXXXX</div>
+            <div class="log-info">[14:24:02]  Language selected: Bangla (user 01XXX)</div>
+            <div class="log-info">[14:25:30]  Keyword match: "salam" → replied</div>
+            <div class="log-info">[14:26:10]  Keyword match: "payment" → replied</div>
+            <div class="log-warn">[14:27:00]  Owner came online → auto-reply OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAIRING ── -->
+      <div class="page" id="page-pairing">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-link"></i> Pairing Code Login</div>
+            <div class="pair-box">
+              <div class="pair-hint">Enter this code in WhatsApp<br>Linked Devices → Link with Phone Number</div>
+              <div class="pair-code" id="pair-code">●●●●–●●●●</div>
+              <button class="btn btn-accent" onclick="requestPairCode()"><i class="fa-solid fa-rotate"></i> Generate Code</button>
+            </div>
+            <div class="divider"></div>
+            <div class="form-field">
+              <label>Phone Number</label>
+              <input type="text" id="phone-input" placeholder="+880XXXXXXXXXX" />
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-accent" onclick="requestPairCode()"><i class="fa-solid fa-paper-plane"></i> Request Pairing</button>
+              <button class="btn btn-ghost" onclick="clearSession()"><i class="fa-solid fa-trash"></i> Clear Session</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-circle-info"></i> Session Info</div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Connection Status</div></div>
+              <span class="tag tag-green">Connected</span>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Session Saved</div></div>
+              <span class="tag tag-green">Yes</span>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Firebase Sync</div></div>
+              <span class="tag tag-green">Active</span>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Auto Reconnect</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Crash Protection</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SYSTEM ── -->
+      <div class="page" id="page-system">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Uptime</div>
+            <div class="stat-value accent" id="sys-uptime">3d 14h</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Memory</div>
+            <div class="stat-value warn">127 MB</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Firebase Reads</div>
+            <div class="stat-value">8,241</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Errors (24h)</div>
+            <div class="stat-value danger">2</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-brands fa-google"></i> Firebase Config</div>
+          <div class="grid-2">
+            <div class="form-field">
+              <label>API Key</label>
+              <input type="password" placeholder="AIzaSy••••••••" id="fb-apikey" />
+            </div>
+            <div class="form-field">
+              <label>Auth Domain</label>
+              <input type="text" placeholder="project.firebaseapp.com" id="fb-domain" />
+            </div>
+            <div class="form-field">
+              <label>Database URL</label>
+              <input type="text" placeholder="https://project-default-rtdb..." id="fb-db" />
+            </div>
+            <div class="form-field">
+              <label>Project ID</label>
+              <input type="text" placeholder="your-project-id" id="fb-project" />
+            </div>
+            <div class="form-field">
+              <label>Storage Bucket</label>
+              <input type="text" placeholder="project.appspot.com" id="fb-bucket" />
+            </div>
+            <div class="form-field">
+              <label>Messaging Sender ID</label>
+              <input type="text" placeholder="123456789" id="fb-sender" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-accent" onclick="saveFb()"><i class="fa-solid fa-floppy-disk"></i> Save Firebase</button>
+            <button class="btn btn-ghost" onclick="testFb()"><i class="fa-solid fa-plug"></i> Test Connection</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-terminal"></i> System Log</div>
+          <div class="log-box">
+            <div class="log-info">[SYS]  Node.js v20.x running</div>
+            <div class="log-info">[SYS]  Baileys connected</div>
+            <div class="log-info">[FB]   Firebase RTDB connected</div>
+            <div class="log-info">[SYS]  Express server on :3000</div>
+            <div class="log-warn">[WARN] High message rate at 14:23</div>
+            <div class="log-err" >[ERR]  Socket timeout (recovered)</div>
+            <div class="log-info">[SYS]  Auto-reconnected successfully</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MESSAGES ── -->
+      <div class="page" id="page-messages">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-comment-dots"></i> Auto Reply Messages</div>
+          <div class="grid-2">
+            <div class="form-field">
+              <label>Welcome Message</label>
+              <textarea id="msg-welcome">Hi! Welcome. The owner is currently offline. I am an automated bot. How can I help you?</textarea>
+            </div>
+            <div class="form-field">
+              <label>Offline Message</label>
+              <textarea id="msg-offline">The owner is offline right now. Your message has been noted. Please wait for a reply.</textarea>
+            </div>
+            <div class="form-field">
+              <label>Help Reply</label>
+              <textarea id="msg-help">Commands: .menu .ping .runtime .owner .payment .help</textarea>
+            </div>
+            <div class="form-field">
+              <label>Owner Reply</label>
+              <textarea id="msg-owner">Owner: Md. Mainul Islam | GitHub: M41NUL | Telegram: @mdmainulislaminfo</textarea>
+            </div>
+            <div class="form-field">
+              <label>Group Reply</label>
+              <textarea id="msg-group">This is an automated bot. For direct support please message privately.</textarea>
+            </div>
+            <div class="form-field">
+              <label>Contact Reply</label>
+              <textarea id="msg-contact">GitHub: https://github.com/M41NUL | Telegram: t.me/mdmainulislaminfo</textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-language"></i> Language Settings</div>
+          <div class="grid-2">
+            <div class="form-field">
+              <label>Welcome — Bangla</label>
+              <textarea>হ্যালো! আমি একটি অটোমেটেড বট। মালিক এখন অফলাইনে আছেন।</textarea>
+            </div>
+            <div class="form-field">
+              <label>Welcome — English</label>
+              <textarea>Hello! I am an automated bot. The owner is currently offline.</textarea>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-accent" onclick="showToast('Messages saved to Firebase')"><i class="fa-solid fa-floppy-disk"></i> Save All Messages</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── KEYWORDS ── -->
+      <div class="page" id="page-keywords">
+        <div class="section-head">
+          <h2>Keyword Reply Manager</h2>
+          <button class="btn btn-accent btn-sm" onclick="openKwModal()"><i class="fa-solid fa-plus"></i> Add Keyword</button>
+        </div>
+        <div class="card">
+          <div id="kw-list">
+            <!-- generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TIMING ── -->
+      <div class="page" id="page-timing">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-clock"></i> Auto Reply Timing</div>
+          <div class="time-grid">
+            <div class="form-field">
+              <label>Start Time (offline from)</label>
+              <input type="time" value="22:00" id="t-start" />
+            </div>
+            <div class="form-field">
+              <label>End Time (online from)</label>
+              <input type="time" value="08:00" id="t-end" />
+            </div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Timing System Active</div>
+              <div class="toggle-desc">Auto reply only between selected hours</div>
+            </div>
+            <div class="toggle on" onclick="tog(this)"></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Ignore Owner Online Status</div>
+              <div class="toggle-desc">Reply even if owner is online during timing window</div>
+            </div>
+            <div class="toggle" onclick="tog(this)"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-accent" onclick="showToast('Timing saved')"><i class="fa-solid fa-floppy-disk"></i> Save Timing</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Active Days</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-accent btn-sm" id="day-sat" onclick="toggleDay(this)">Sat</button>
+            <button class="btn btn-accent btn-sm" id="day-sun" onclick="toggleDay(this)">Sun</button>
+            <button class="btn btn-accent btn-sm" id="day-mon" onclick="toggleDay(this)">Mon</button>
+            <button class="btn btn-accent btn-sm" id="day-tue" onclick="toggleDay(this)">Tue</button>
+            <button class="btn btn-accent btn-sm" id="day-wed" onclick="toggleDay(this)">Wed</button>
+            <button class="btn btn-ghost btn-sm"  id="day-thu" onclick="toggleDay(this)">Thu</button>
+            <button class="btn btn-ghost btn-sm"  id="day-fri" onclick="toggleDay(this)">Fri</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONTROLS ── -->
+      <div class="page" id="page-controls">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-user"></i> Personal Controls</div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Personal Auto Reply</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Language Selection</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Welcome Message</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Keyword Replies</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Auto Read</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="fa-solid fa-users"></i> Group Controls</div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Group Auto Reply</div></div>
+              <div class="toggle" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Group Welcome</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Group Keyword Reply</div></div>
+              <div class="toggle" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Anti Spam</div></div>
+              <div class="toggle on" onclick="tog(this)"></div>
+            </div>
+            <div class="toggle-row">
+              <div><div class="toggle-label">Group Auto Read</div></div>
+              <div class="toggle" onclick="tog(this)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-accent" onclick="showToast('Controls saved to Firebase')"><i class="fa-solid fa-floppy-disk"></i> Save Controls</button>
+        </div>
+      </div>
+
+      <!-- ── PERSONAL ── -->
+      <div class="page" id="page-personal">
+        <div class="section-head">
+          <h2>Personal Chats</h2>
+          <span>Total: 381</span>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Language</th>
+                  <th>Messages</th>
+                  <th>Last Seen</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="personal-table">
+                <!-- generated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GROUPS ── -->
+      <div class="page" id="page-groups">
+        <div class="section-head">
+          <h2>Group Chats</h2>
+          <span>Total: 24</span>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Group Name</th>
+                  <th>Members</th>
+                  <th>Welcome</th>
+                  <th>Keyword</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="groups-table">
+                <!-- generated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAYMENTS ── -->
+      <div class="page" id="page-payments">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-bangladeshi-taka-sign"></i> Payment Methods</div>
+          <div class="toggle-row" style="margin-bottom:16px">
+            <div><div class="toggle-label">Payment Auto Reply Active</div></div>
+            <div class="toggle on" onclick="tog(this)"></div>
+          </div>
+          <div class="pay-grid">
+            <div class="pay-card">
+              <div class="pay-label">bKash</div>
+              <div class="pay-num" id="bkash-num">01308850528</div>
+            </div>
+            <div class="pay-card">
+              <div class="pay-label">Nagad</div>
+              <div class="pay-num" id="nagad-num">01308850528</div>
+            </div>
+            <div class="pay-card">
+              <div class="pay-label">Rocket</div>
+              <div class="pay-num" id="rocket-num">01308850528</div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-field">
+              <label>bKash Number</label>
+              <input type="text" value="01308850528" id="f-bkash" />
+            </div>
+            <div class="form-field">
+              <label>Nagad Number</label>
+              <input type="text" value="01308850528" id="f-nagad" />
+            </div>
+            <div class="form-field">
+              <label>Rocket Number</label>
+              <input type="text" value="01308850528" id="f-rocket" />
+            </div>
+            <div class="form-field">
+              <label>Send Money Type</label>
+              <select>
+                <option>Personal (Send Money)</option>
+                <option>Merchant (Payment)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Payment Instructions</label>
+            <textarea id="pay-instructions">Send payment to bKash/Nagad/Rocket: 01308850528 (Personal). After sending, share your transaction ID here. We will confirm within 1 hour.</textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-accent" onclick="savePayments()"><i class="fa-solid fa-floppy-disk"></i> Save Payment Info</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- ── KEYWORD MODAL ── -->
+<div class="modal-bg" id="kw-modal">
+  <div class="modal">
+    <h3 id="kw-modal-title">Add Keyword</h3>
+    <div class="form-field">
+      <label>Keyword / Trigger</label>
+      <input type="text" id="kw-trigger" placeholder="e.g. salam" />
+    </div>
+    <div class="form-field">
+      <label>Reply Message</label>
+      <textarea id="kw-reply-text" placeholder="Bot reply when keyword detected..." style="min-height:100px"></textarea>
+    </div>
+    <div class="form-field">
+      <label>Language</label>
+      <select id="kw-lang">
+        <option value="both">Both</option>
+        <option value="bn">Bangla Only</option>
+        <option value="en">English Only</option>
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveKw()"><i class="fa-solid fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toast-msg"></span></div>
+
+<script>
+/* ── MAINUL-X Dashboard JS ─────────────────────────────────────────
+   AUTHOR  : Md. Mainul Islam
+   OWNER   : MAINUL-X
+   GITHUB  : M41NUL
+   © MAINUL-X  All Rights Reserved
+─────────────────────────────────────────────────────────────────── */
+
+// ── Auth ──
+const CREDS = { user: 'admin', pass: 'mainulx2024' };
+
+function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value.trim();
+  if (u === CREDS.user && p === CREDS.pass) {
+    document.getElementById('login-screen').style.display = 'none';
+    const app = document.getElementById('app');
+    app.classList.add('visible');
+    startRuntime();
+    renderKeywords();
+    renderPersonal();
+    renderGroups();
+  } else {
+    document.getElementById('l-err').style.display = 'block';
+  }
+}
+document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('l-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── Navigation ──
+function nav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const page = el.dataset.page;
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('page-title').textContent = el.textContent.trim();
+  if (window.innerWidth < 900) closeSidebar();
+}
+
+// ── Sidebar mobile ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ── Toggle switches ──
+function tog(el) { el.classList.toggle('on'); showToast('Setting updated'); }
+
+// ── Day buttons ──
+function toggleDay(el) {
+  el.classList.toggle('btn-accent');
+  el.classList.toggle('btn-ghost');
+}
+
+// ── Runtime counter ──
+let startTime = Date.now();
+function startRuntime() {
+  setInterval(() => {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const h = String(Math.floor(s / 3600)).padStart(2,'0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
+    const sec = String(s % 60).padStart(2,'0');
+    document.getElementById('runtime-badge').textContent = `${h}:${m}:${sec}`;
+  }, 1000);
+}
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Pairing ──
+function requestPairCode() {
+  const code = Array.from({length:8}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]);
+  document.getElementById('pair-code').textContent = code.slice(0,4).join('') + '–' + code.slice(4).join('');
+  showToast('Pairing code generated');
+}
+function clearSession() {
+  document.getElementById('pair-code').textContent = '●●●●–●●●●';
+  showToast('Session cleared');
+}
+
+// ── Firebase save (UI only) ──
+function saveFb()  { showToast('Firebase config saved'); }
+function testFb()  { showToast('Firebase connection OK'); }
+function savePayments() {
+  document.getElementById('bkash-num').textContent  = document.getElementById('f-bkash').value;
+  document.getElementById('nagad-num').textContent   = document.getElementById('f-nagad').value;
+  document.getElementById('rocket-num').textContent = document.getElementById('f-rocket').value;
+  showToast('Payment info saved');
+}
+
+// ── Keywords ──
+const DEFAULT_KEYWORDS = [
+  { id:1, trigger:'salam',            reply:'Wa alaikum salam! How can I help?',                active:true  },
+  { id:2, trigger:'assalamu alaikum', reply:'Wa alaikum assalam wa rahmatullah!',                active:true  },
+  { id:3, trigger:'payment',          reply:'Please check the payment section for details.',     active:true  },
+  { id:4, trigger:'price',            reply:'Contact the owner for pricing information.',        active:true  },
+  { id:5, trigger:'help',             reply:'Commands: .menu .ping .runtime .owner .payment',   active:true  },
+  { id:6, trigger:'owner',            reply:'Owner: Md. Mainul Islam | MAINUL-X | GitHub: M41NUL', active:true },
+  { id:7, trigger:'group',            reply:'Join our official Telegram: t.me/mdmainulislaminfo', active:true },
+  { id:8, trigger:'thanks',           reply:'You\'re welcome! Is there anything else?',          active:true  },
+  { id:9, trigger:'bye',              reply:'Goodbye! Have a great day.',                        active:true  },
+  { id:10,trigger:'api',              reply:'API info available at: github.com/M41NUL',          active:false },
+  { id:11,trigger:'bot',              reply:'I am MAINUL-X WhatsApp Bot. Powered by Baileys.',  active:true  },
+  { id:12,trigger:'contact',          reply:'GitHub: M41NUL | Telegram: t.me/mdmainulislaminfo',active:true  },
+];
+let keywords = [...DEFAULT_KEYWORDS];
+let editingKwId = null;
+
+function renderKeywords() {
+  const list = document.getElementById('kw-list');
+  list.innerHTML = '';
+  keywords.forEach(kw => {
+    const row = document.createElement('div');
+    row.className = 'kw-row';
+    row.innerHTML = `
+      <div class="kw-chip">${kw.trigger}</div>
+      <div class="kw-reply">${kw.reply}</div>
+      <div class="kw-actions">
+        <div class="toggle ${kw.active ? 'on' : ''}" style="width:36px;height:22px" onclick="toggleKw(${kw.id})"></div>
+        <button class="btn btn-ghost btn-sm" onclick="editKw(${kw.id})"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteKw(${kw.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>`;
+    list.appendChild(row);
+  });
+  document.querySelector('.nav-item[data-page="keywords"] .badge').textContent = keywords.length;
+}
+function toggleKw(id) {
+  const kw = keywords.find(k => k.id === id);
+  if (kw) kw.active = !kw.active;
+  renderKeywords();
+  showToast('Keyword updated');
+}
+function deleteKw(id) {
+  keywords = keywords.filter(k => k.id !== id);
+  renderKeywords();
+  showToast('Keyword deleted');
+}
+function editKw(id) {
+  const kw = keywords.find(k => k.id === id);
+  if (!kw) return;
+  editingKwId = id;
+  document.getElementById('kw-modal-title').textContent = 'Edit Keyword';
+  document.getElementById('kw-trigger').value    = kw.trigger;
+  document.getElementById('kw-reply-text').value = kw.reply;
+  document.getElementById('kw-modal').classList.add('open');
+}
+function openKwModal() {
+  editingKwId = null;
+  document.getElementById('kw-modal-title').textContent = 'Add Keyword';
+  document.getElementById('kw-trigger').value    = '';
+  document.getElementById('kw-reply-text').value = '';
+  document.getElementById('kw-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('kw-modal').classList.remove('open');
+}
+function saveKw() {
+  const trigger = document.getElementById('kw-trigger').value.trim().toLowerCase();
+  const reply   = document.getElementById('kw-reply-text').value.trim();
+  if (!trigger || !reply) { showToast('Fill all fields'); return; }
+  if (editingKwId) {
+    const kw = keywords.find(k => k.id === editingKwId);
+    if (kw) { kw.trigger = trigger; kw.reply = reply; }
+  } else {
+    keywords.push({ id: Date.now(), trigger, reply, active: true });
+  }
+  closeModal();
+  renderKeywords();
+  showToast(editingKwId ? 'Keyword updated' : 'Keyword added');
+}
+document.getElementById('kw-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+// ── Personal Table ──
+const SAMPLE_USERS = [
+  { num:'+8801308850528', lang:'Bangla', msgs:42,  last:'2 min ago',  status:'active' },
+  { num:'+8801711000001', lang:'English',msgs:18,  last:'1 hr ago',   status:'active' },
+  { num:'+8801800000002', lang:'Bangla', msgs:7,   last:'3 hrs ago',  status:'inactive' },
+  { num:'+8801900000003', lang:'English',msgs:134, last:'1 day ago',  status:'active' },
+  { num:'+8801600000004', lang:'Bangla', msgs:3,   last:'3 days ago', status:'inactive' },
+];
+function renderPersonal() {
+  const tbody = document.getElementById('personal-table');
+  SAMPLE_USERS.forEach(u => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.num}</td>
+      <td>${u.lang}</td>
+      <td>${u.msgs}</td>
+      <td>${u.last}</td>
+      <td><span class="tag ${u.status === 'active' ? 'tag-green' : 'tag-gray'}">${u.status}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Groups Table ──
+const SAMPLE_GROUPS = [
+  { name:'MAINUL-X OFFICIAL',    members:2400, welcome:true,  kw:true  },
+  { name:'Dev Community BD',     members:890,  welcome:true,  kw:false },
+  { name:'Tech Help Group',      members:340,  welcome:false, kw:true  },
+  { name:'Freelance Bangladesh', members:1200, welcome:true,  kw:false },
+];
+function renderGroups() {
+  const tbody = document.getElementById('groups-table');
+  SAMPLE_GROUPS.forEach(g => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${g.name}</td>
+      <td>${g.members.toLocaleString()}</td>
+      <td><span class="tag ${g.welcome ? 'tag-green' : 'tag-gray'}">${g.welcome ? 'ON' : 'OFF'}</span></td>
+      <td><span class="tag ${g.kw ? 'tag-green' : 'tag-gray'}">${g.kw ? 'ON' : 'OFF'}</span></td>
+      <td><button class="btn btn-ghost btn-sm"><i class="fa-solid fa-gear"></i> Manage</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Live log append ──
+const logMsgs = [
+  ['log-info', 'Auto-replied to new user'],
+  ['log-info', 'Keyword match: "help"'],
+  ['log-warn', 'Owner status: offline'],
+  ['log-info', 'Language selection sent'],
+  ['log-info', 'Auto-read: 3 messages'],
+  ['log-info', 'Keyword match: "payment"'],
+];
+let logIdx = 0;
+setInterval(() => {
+  const box = document.getElementById('log-box');
+  if (!box) return;
+  const [cls, msg] = logMsgs[logIdx % logMsgs.length];
+  const now = new Date().toLocaleTimeString('en-GB');
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = `[${now}]  ${msg}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  if (box.children.length > 40) box.removeChild(box.firstChild);
+  logIdx++;
+}, 4000);
+</script>
+
+<script>
+/* ── MAINUL-X · Firebase API Integration ──────────────────────────
+   Fetches real data from backend → Firebase Realtime Database
+   © MAINUL-X  All Rights Reserved
+─────────────────────────────────────────────────────────────────── */
+
+const API = '/api';
+let pollInterval = null;
+
+// ── API helper ────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return res.json();
+}
+
+// ── Override login to use real API ────────────────────────────────
+async function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value.trim();
+  const r = await api('POST', '/login', { username: u, password: p });
+  if (r.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    startRuntime();
+    renderKeywords();
+    renderPersonal();
+    renderGroups();
+    startPolling();
+  } else {
+    document.getElementById('l-err').style.display = 'block';
+  }
+}
+
+async function doLogout() {
+  await api('POST', '/logout');
+  clearInterval(pollInterval);
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── Poll bot status every 5s ──────────────────────────────────────
+function startPolling() {
+  loadStatus();
+  loadLogs();
+  pollInterval = setInterval(() => { loadStatus(); loadLogs(); }, 5000);
+}
+
+async function loadStatus() {
+  const r = await api('GET', '/status');
+  if (!r.ok) return;
+
+  // Bot connected status
+  const dot  = document.getElementById('bot-dot');
+  const txt  = document.getElementById('bot-status-text');
+  if (r.connected) {
+    dot.classList.remove('offline'); txt.textContent = 'Connected';
+  } else {
+    dot.classList.add('offline'); txt.textContent = 'Disconnected';
+  }
+
+  // Pairing code
+  if (r.pairingCode) {
+    const c = r.pairingCode;
+    document.getElementById('pair-code').textContent = c.slice(0,4) + '–' + c.slice(4);
+  }
+
+  // Stats
+  if (r.stats) {
+    const el = id => document.getElementById(id);
+    if (r.stats.replied) el('s-replied').textContent = r.stats.replied.toLocaleString();
+    if (r.stats.users)   el('s-users').textContent   = r.stats.users.toLocaleString();
+    if (r.stats.groups)  el('s-groups').textContent  = r.stats.groups.toLocaleString();
+  }
+
+  // Uptime
+  if (r.runtime) {
+    document.getElementById('sys-uptime').textContent =
+      `${r.runtime.days}d ${r.runtime.hours}h`;
+  }
+}
+
+async function loadLogs() {
+  const r = await api('GET', '/logs');
+  if (!r.ok || !r.logs?.length) return;
+  const box = document.getElementById('log-box');
+  box.innerHTML = '';
+  r.logs.forEach(l => {
+    const cls = l.level === 'ERROR' ? 'log-err' : l.level === 'WARN' ? 'log-warn' : 'log-info';
+    const d = document.createElement('div');
+    d.className = cls;
+    d.textContent = `[${l.time}] [${l.tag}] ${l.msg}`;
+    box.appendChild(d);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+// ── Override renderKeywords to use Firebase ───────────────────────
+async function renderKeywords() {
+  const r = await api('GET', '/keywords');
+  if (!r.ok) return;
+  const list = document.getElementById('kw-list');
+  list.innerHTML = '';
+  keywords = [];
+  if (r.data) {
+    Object.entries(r.data).forEach(([key, kw]) => {
+      keywords.push({ ...kw, id: key });
+      const row = document.createElement('div');
+      row.className = 'kw-row';
+      row.innerHTML = `
+        <div class="kw-chip">${kw.trigger}</div>
+        <div class="kw-reply">${kw.reply}</div>
+        <div class="kw-actions">
+          <div class="toggle ${kw.active ? 'on' : ''}" style="width:36px;height:22px" onclick="toggleKw('${key}')"></div>
+          <button class="btn btn-ghost btn-sm" onclick="editKw('${key}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteKw('${key}')"><i class="fa-solid fa-trash"></i></button>
+        </div>`;
+      list.appendChild(row);
+    });
+    const badge = document.querySelector('.nav-item[data-page="keywords"] .badge');
+    if (badge) badge.textContent = keywords.length;
+  }
+}
+
+async function toggleKw(key) {
+  const kw = keywords.find(k => k.id === key);
+  if (!kw) return;
+  await api('PUT', `/keywords/${key}`, { active: !kw.active });
+  await renderKeywords();
+  showToast('Keyword updated');
+}
+
+async function deleteKw(key) {
+  await api('DELETE', `/keywords/${key}`);
+  await renderKeywords();
+  showToast('Keyword deleted');
+}
+
+async function editKw(key) {
+  const kw = keywords.find(k => k.id === key);
+  if (!kw) return;
+  editingKwId = key;
+  document.getElementById('kw-modal-title').textContent = 'Edit Keyword';
+  document.getElementById('kw-trigger').value    = kw.trigger;
+  document.getElementById('kw-reply-text').value = kw.reply;
+  document.getElementById('kw-modal').classList.add('open');
+}
+
+async function saveKw() {
+  const trigger = document.getElementById('kw-trigger').value.trim().toLowerCase();
+  const reply   = document.getElementById('kw-reply-text').value.trim();
+  if (!trigger || !reply) { showToast('Fill all fields'); return; }
+  if (editingKwId) {
+    await api('PUT', `/keywords/${editingKwId}`, { trigger, reply });
+  } else {
+    await api('POST', '/keywords', { trigger, reply, active: true });
+  }
+  closeModal();
+  await renderKeywords();
+  showToast(editingKwId ? 'Keyword updated' : 'Keyword added');
+}
+
+// ── Load messages from Firebase ───────────────────────────────────
+async function loadMessages() {
+  const r = await api('GET', '/messages');
+  if (!r.ok || !r.data) return;
+  const m = r.data;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('msg-welcome', m.welcome);
+  set('msg-offline',  m.offline);
+  set('msg-help',     m.help);
+  set('msg-owner',    m.owner);
+  set('msg-group',    m.group);
+  set('msg-contact',  m.contact);
+}
+
+// ── Save messages to Firebase ─────────────────────────────────────
+async function saveMessages() {
+  const get = id => document.getElementById(id)?.value;
+  await api('PUT', '/messages', {
+    welcome: get('msg-welcome'),
+    offline: get('msg-offline'),
+    help:    get('msg-help'),
+    owner:   get('msg-owner'),
+    group:   get('msg-group'),
+    contact: get('msg-contact'),
+  });
+  showToast('Messages saved to Firebase');
+}
+
+// ── Load settings (toggles) ───────────────────────────────────────
+async function loadSettings() {
+  const r = await api('GET', '/settings');
+  if (!r.ok || !r.data) return;
+  const s = r.data;
+  if (s.timing) {
+    const ts = document.getElementById('t-start');
+    const te = document.getElementById('t-end');
+    if (ts) ts.value = s.timing.startTime || '22:00';
+    if (te) te.value = s.timing.endTime   || '08:00';
+  }
+  if (s.payment) {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+    set('f-bkash',  s.payment.bkash);
+    set('f-nagad',  s.payment.nagad);
+    set('f-rocket', s.payment.rocket);
+    set('pay-instructions', s.payment.instructions);
+    document.getElementById('bkash-num').textContent  = s.payment.bkash  || '';
+    document.getElementById('nagad-num').textContent  = s.payment.nagad  || '';
+    document.getElementById('rocket-num').textContent = s.payment.rocket || '';
+  }
+}
+
+// ── Save timing ───────────────────────────────────────────────────
+async function saveTiming() {
+  const start = document.getElementById('t-start')?.value;
+  const end   = document.getElementById('t-end')?.value;
+  await api('PUT', '/settings/timing', { startTime: start, endTime: end });
+  showToast('Timing saved to Firebase');
+}
+
+// ── Save payment to Firebase ──────────────────────────────────────
+async function savePayments() {
+  const get = id => document.getElementById(id)?.value;
+  const data = {
+    bkash:        get('f-bkash'),
+    nagad:        get('f-nagad'),
+    rocket:       get('f-rocket'),
+    instructions: get('pay-instructions'),
+  };
+  await api('PUT', '/settings/payment', data);
+  document.getElementById('bkash-num').textContent  = data.bkash;
+  document.getElementById('nagad-num').textContent  = data.nagad;
+  document.getElementById('rocket-num').textContent = data.rocket;
+  showToast('Payment info saved to Firebase');
+}
+
+// ── Real pairing code from Baileys ────────────────────────────────
+async function requestPairCode() {
+  const phone = document.getElementById('phone-input')?.value.trim();
+  if (!phone) { showToast('Enter phone number'); return; }
+  const r = await api('POST', '/pairing/request', { phone });
+  if (r.ok && r.code) {
+    const c = r.code;
+    document.getElementById('pair-code').textContent = c.slice(0,4) + '–' + c.slice(4);
+    showToast('Pairing code generated');
+  } else {
+    showToast('Bot not ready yet. Wait for connection.');
+  }
+}
+
+async function clearSession() {
+  const r = await api('POST', '/pairing/clear-session');
+  document.getElementById('pair-code').textContent = '●●●●–●●●●';
+  showToast(r.message || 'Session cleared');
+}
+
+// ── Real users from Firebase ──────────────────────────────────────
+async function renderPersonal() {
+  const r = await api('GET', '/users');
+  const tbody = document.getElementById('personal-table');
+  tbody.innerHTML = '';
+  if (!r.ok || !r.data) return;
+  Object.values(r.data).forEach(u => {
+    const tr = document.createElement('tr');
+    const last = u.lastSeen ? new Date(u.lastSeen).toLocaleString() : '-';
+    tr.innerHTML = `
+      <td>+${u.number}</td>
+      <td>${u.language === 'bn' ? 'Bangla' : u.language === 'en' ? 'English' : 'Pending'}</td>
+      <td>${u.messageCount || 0}</td>
+      <td>${last}</td>
+      <td><span class="tag tag-green">active</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Real groups from Firebase ─────────────────────────────────────
+async function renderGroups() {
+  const r = await api('GET', '/groups');
+  const tbody = document.getElementById('groups-table');
+  tbody.innerHTML = '';
+  if (!r.ok || !r.data) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No groups yet</td></tr>';
+    return;
+  }
+  Object.entries(r.data).forEach(([jid, g]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${g.name || jid}</td>
+      <td>${g.members || '-'}</td>
+      <td><span class="tag ${g.welcome ? 'tag-green' : 'tag-gray'}">${g.welcome ? 'ON' : 'OFF'}</span></td>
+      <td><span class="tag ${g.keyword ? 'tag-green' : 'tag-gray'}">${g.keyword ? 'ON' : 'OFF'}</span></td>
+      <td><button class="btn btn-ghost btn-sm"><i class="fa-solid fa-gear"></i> Manage</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Firebase save button ──────────────────────────────────────────
+function saveFb()  { showToast('Update Firebase config in Render env vars'); }
+function testFb()  { api('GET', '/health').then(r => showToast(r.ok ? 'Firebase OK' : 'Error')); }
+
+// ── Auto-load data when page switches ────────────────────────────
+const origNav = nav;
+window.nav = function(el) {
+  origNav(el);
+  const page = el.dataset.page;
+  if (page === 'messages')  loadMessages();
+  if (page === 'personal')  renderPersonal();
+  if (page === 'groups')    renderGroups();
+  if (page === 'keywords')  renderKeywords();
+  if (page === 'timing' || page === 'payments') loadSettings();
+};
+
+// ── Check auth on load ────────────────────────────────────────────
+(async () => {
+  const r = await api('GET', '/auth-check').catch(() => ({ ok: false }));
+  if (r.ok) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    startRuntime();
+    renderKeywords();
+    renderPersonal();
+    renderGroups();
+    startPolling();
+    loadSettings();
+  }
+})();
+</script>
+</body>
+</html>
