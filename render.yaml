@@ -1,0 +1,43 @@
+# ── MAINUL-X WA Bot · Render Deployment ────────────────────────────
+# AUTHOR  : Md. Mainul Islam | OWNER : MAINUL-X | GITHUB : M41NUL
+# © MAINUL-X  All Rights Reserved
+# ────────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: mainulx-wa-bot
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DASHBOARD_USER
+        sync: false
+      - key: DASHBOARD_PASS
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: OWNER_NUMBER
+        sync: false
+      - key: OWNER_NAME
+        sync: false
+      - key: BOT_NAME
+        value: MAINUL-X WA Bot
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_DATABASE_URL
+        sync: false
+    disk:
+      name: session-storage
+      mountPath: /opt/render/project/src/session
+      sizeGB: 1
